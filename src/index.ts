@@ -1,5 +1,6 @@
 import Hapi, { Server } from "@hapi/hapi";
-require("dotenv").config()
+require("dotenv").config();
+const bookRoutes = require("./routes/book.route");
 
 let server: Server;
 
@@ -14,8 +15,15 @@ const init = async (): Promise<Server> => {
     },
   });
 
-  console.log(`Server running at Port ${server.info.uri}`)
-  return server
+  server.route(bookRoutes);
+  return server;
 };
 
-init();
+const start = async (): Promise<void> => {
+  console.log(`Server running at Port ${server.info.uri}`);
+  server.start();
+};
+
+init()
+  .then(() => start())
+  .catch((err) => console.error("Error While Starting the server", err));
