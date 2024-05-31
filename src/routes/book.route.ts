@@ -1,5 +1,11 @@
 import { ServerRoute } from "@hapi/hapi";
-const { addBookHandler, getAllBookHandler, getDetailBookHandler, updateBookHandler, deleteBookHandler } = require("../controllers/book.controller");
+import {
+  addBookHandler,
+  getAllBookHandler,
+  getDetailBookHandler,
+  updateBookHandler,
+  deleteBookHandler,
+} from "../controllers/book.controller";
 
 const bookRoutes: ServerRoute[] = [
   {
@@ -15,17 +21,17 @@ const bookRoutes: ServerRoute[] = [
   {
     method: "GET",
     path: "/books/{bookId}",
-    handler: getDetailBookHandler
+    handler: getDetailBookHandler,
   },
   {
     method: "PUT",
     path: "/books/{bookId}",
-    handler: updateBookHandler
+    handler: updateBookHandler,
   },
   {
     method: "DELETE",
     path: "/books/{bookId}",
-    handler: deleteBookHandler
+    handler: deleteBookHandler,
   },
   {
     method: "*",
@@ -38,4 +44,4 @@ const bookRoutes: ServerRoute[] = [
   },
 ];
 
-module.exports = bookRoutes;
+export default bookRoutes;

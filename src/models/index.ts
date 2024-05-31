@@ -1,10 +1,5 @@
-import { type IBookAddPayload } from "../types";
-
-interface IBooksResponse extends IBookAddPayload {
-  id: number;
-  finished: boolean;
-}
+import { type IBooksResponse } from "../types";
 
 const books: IBooksResponse[] = [];
 
-module.exports = books;
+export default books;

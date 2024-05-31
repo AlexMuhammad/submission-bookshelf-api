@@ -9,4 +9,11 @@ interface IBookAddPayload {
   reading: boolean;
 }
 
-export { IBookAddPayload };
+interface IBooksResponse extends IBookAddPayload {
+  id: string;
+  finished: boolean;
+  insertedAt: string;
+  updatedAt: string;
+}
+
+export { IBookAddPayload, IBooksResponse };

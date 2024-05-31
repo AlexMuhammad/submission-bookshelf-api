@@ -1,6 +1,7 @@
 import Hapi, { Server } from "@hapi/hapi";
-require("dotenv").config();
-const bookRoutes = require("./routes/book.route");
+import dotenv from "dotenv";
+import bookRoutes from "./routes/book.route";
+dotenv.config();
 
 let server: Server;
 
