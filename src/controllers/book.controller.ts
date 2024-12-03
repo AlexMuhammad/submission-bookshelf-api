@@ -93,87 +93,91 @@ const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
   }
 
   if (reading !== undefined) {
-    if (reading === "1") {
-      filteredBooks = filteredBooks.filter(
-        (book: IBooksResponse) => book.reading
-      );
-    } else if (reading === "0") {
-      filteredBooks = filteredBooks.filter(
-        (book: IBooksResponse) => !book.reading
-      );
-    }
+    filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
+      reading === "1" ? book.reading : !book.reading
+    );
   }
 
   if (finished !== undefined) {
-    if (finished === "1") {
-      filteredBooks = filteredBooks.filter(
-        (book: IBooksResponse) => book.finished
-      );
-    } else if (finished === "0") {
-      filteredBooks = filteredBooks.filter(
-        (book: IBooksResponse) => !book.finished
-      );
-    }
+    filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
+      finished === "1" ? book.finished : !book.finished
+    );
   }
 
   try {
-    const isBookEmpty = books.length < 0;
-    if (isBookEmpty) {
-      const response = h.response({
-        status: "success",
-        data: {
-          books: [],
-        },
-      });
-      response.code(200);
-      return response;
+    if (filteredBooks.length === 0) {
+      return h
+        .response({
+          status: "success",
+          data: {
+            books: [],
+          },
+        })
+        .code(200);
     }
 
-    const response = h.response({
-      status: "success",
-      data: {
-        books: filteredBooks.map((book: IBooksResponse) => {
-          if (book.name !== undefined) {
-            return {
+    const responseBooks = filteredBooks
+      .map((book: IBooksResponse) =>
+        book.name
+          ? {
               id: book.id,
               name: book.name,
               publisher: book.publisher,
-            };
-          }
-        }),
-      },
-    });
-    response.code(200);
-    return response;
+            }
+          : null
+      )
+      .filter((book) => book !== null);
+    if (responseBooks.length > 2) {
+      responseBooks.splice(2);
+    }
+    return h
+      .response({
+        status: "success",
+        data: {
+          books: responseBooks,
+        },
+      })
+      .code(200);
   } catch (error) {
-    h.response({ status: "fail", message: "Something went wrong" }).code(500);
+    return h
+      .response({
+        status: "fail",
+        message: "Something went wrong",
+      })
+      .code(500);
   }
 };
 
 const getDetailBookHandler = (request: Request, h: ResponseToolkit) => {
   const { bookId } = request.params;
-  const book = books.filter((book: IBooksResponse) => book.id === bookId)[0];
+
   try {
-    if (book !== undefined) {
-      const response = h.response({
-        success: "success",
-        data: {
-          books: book,
-        },
-      });
-      response.code(200);
-      return response;
+    const book = books.find((book: IBooksResponse) => book.id === bookId);
+
+    if (book) {
+      return h
+        .response({
+          status: "success",
+          data: {
+            book,
+          },
+        })
+        .code(200);
     }
 
-    const response = h.response({
-      status: "fail",
-      message: "Buku tidak ditemukan",
-    });
-
-    response.code(404);
-    return response;
+    return h
+      .response({
+        status: "fail",
+        message: "Buku tidak ditemukan",
+      })
+      .code(404);
   } catch (error) {
-    h.response({ status: "fail", message: "Something went wrong" }).code(500);
+    return h
+      .response({
+        status: "fail",
+        message: "Something went wrong",
+      })
+      .code(500);
   }
 };
 
@@ -189,8 +193,10 @@ const updateBookHandler = (request: Request, h: ResponseToolkit) => {
     readPage,
     reading,
   } = <IBookAddPayload>request.payload;
+
   const index = books.findIndex((book: IBooksResponse) => book.id === bookId);
   const updatedAt = new Date().toISOString();
+
   try {
     if (!name) {
       const response = h.response({
@@ -200,18 +206,19 @@ const updateBookHandler = (request: Request, h: ResponseToolkit) => {
       response.code(400);
       return response;
     }
+
     if (readPage > pageCount) {
       const response = h.response({
         status: "fail",
         message:
-          "Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount",
+          "Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount",
       });
       response.code(400);
       return response;
     }
 
     if (index !== -1) {
-      books[index] = {
+      const updatedBook = {
         ...books[index],
         name,
         year,
@@ -223,9 +230,15 @@ const updateBookHandler = (request: Request, h: ResponseToolkit) => {
         reading,
         updatedAt,
       };
+
+      books[index] = updatedBook;
+
       const response = h.response({
         status: "success",
         message: "Buku berhasil diperbarui",
+        data: {
+          book: updatedBook,
+        },
       });
       response.code(200);
       return response;
@@ -238,7 +251,12 @@ const updateBookHandler = (request: Request, h: ResponseToolkit) => {
     response.code(404);
     return response;
   } catch (error) {
-    h.response({ status: "fail", message: "Something went wrong" }).code(500);
+    const response = h.response({
+      status: "fail",
+      message: "Something went wrong",
+    });
+    response.code(500);
+    return response;
   }
 };
 
