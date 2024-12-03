@@ -83,38 +83,26 @@ const addBookHandler = (request: Request, h: ResponseToolkit) => {
 
 const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
   const { name, reading, finished } = request.query;
-  let filteredBooks: IBooksResponse[] = books;
   if (name) {
-    filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
+    books.filter((book: IBooksResponse) =>
       book.name.toLowerCase().includes(name.toLowerCase())
     );
   }
 
   if (reading !== undefined) {
-    filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
+    books.filter((book: IBooksResponse) =>
       reading === "1" ? book.reading : !book.reading
     );
   }
 
   if (finished !== undefined) {
-    filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
+    books.filter((book: IBooksResponse) =>
       finished === "1" ? book.finished : !book.finished
     );
   }
 
   try {
-    if (filteredBooks.length === 0) {
-      return h
-        .response({
-          status: "success",
-          data: {
-            books: [],
-          },
-        })
-        .code(200);
-    }
-
-    const responseBooks = filteredBooks
+    const responseBooks = books
       .map((book: IBooksResponse) => {
         if (book.name) {
           return {
@@ -126,6 +114,18 @@ const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
         return null;
       })
       .filter((book) => book !== null);
+    console.log(responseBooks);
+
+    if (responseBooks.length === 0) {
+      return h
+        .response({
+          status: "success",
+          data: {
+            books: [],
+          },
+        })
+        .code(200);
+    }
 
     if (responseBooks.length > 2) {
       responseBooks.splice(2);
