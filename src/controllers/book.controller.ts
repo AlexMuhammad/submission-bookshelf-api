@@ -39,6 +39,15 @@ const addBookHandler = (request: Request, h: ResponseToolkit) => {
     const isSuccess =
       books.filter((book: IBooksResponse) => book.id === id).length > 0;
 
+    if (!name) {
+      const response = h.response({
+        status: "fail",
+        message: "Gagal menambahkan buku. Mohon isi nama buku",
+      });
+      response.code(400);
+      return response;
+    }
+
     if (!isSuccess) {
       const response = h.response({
         status: "fail",
@@ -123,7 +132,15 @@ const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
     const response = h.response({
       status: "success",
       data: {
-        books: filteredBooks,
+        books: filteredBooks.map((book: IBooksResponse) => {
+          if (book.name !== undefined) {
+            return {
+              id: book.id,
+              name: book.name,
+              publisher: book.publisher,
+            };
+          }
+        }),
       },
     });
     response.code(200);
