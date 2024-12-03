@@ -83,9 +83,7 @@ const addBookHandler = (request: Request, h: ResponseToolkit) => {
 
 const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
   const { name, reading, finished } = request.query;
-
   let filteredBooks: IBooksResponse[] = books;
-
   if (name) {
     filteredBooks = filteredBooks.filter((book: IBooksResponse) =>
       book.name.toLowerCase().includes(name.toLowerCase())
@@ -117,19 +115,22 @@ const getAllBookHandler = (request: Request, h: ResponseToolkit) => {
     }
 
     const responseBooks = filteredBooks
-      .map((book: IBooksResponse) =>
-        book.name
-          ? {
-              id: book.id,
-              name: book.name,
-              publisher: book.publisher,
-            }
-          : null
-      )
+      .map((book: IBooksResponse) => {
+        if (book.name) {
+          return {
+            id: book.id,
+            name: book.name,
+            publisher: book.publisher,
+          };
+        }
+        return null;
+      })
       .filter((book) => book !== null);
+
     if (responseBooks.length > 2) {
       responseBooks.splice(2);
     }
+
     return h
       .response({
         status: "success",
